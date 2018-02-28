@@ -1,0 +1,39 @@
+### GENERAL ###
+bind_ip = 127.0.0.1
+port={{ mongodb_port | default('27017') }}
+pidfilepath={{ mongodb_pidfilepath }}
+fork={{ mongodb_fork }}
+
+### DATA STORAGE ###
+dbpath={{ mongodb_datapath }}
+directoryperdb={{ mongodb_directoryperdb }}
+
+
+
+### LOG ###
+logpath={{ mongodb_logpath }}
+logappend={{ mongodb_logappend }}
+logRotate=reopen
+
+
+
+### SECURITY ###
+{% if mongodb_auth %}
+auth=true
+{% endif %}
+
+### REPLICATION ###
+{% if mongodb_rest %}
+rest=true
+{% endif %}
+{% if mongodb_slave and mongodb_master_source %}
+slave=true
+source={{ mongodb_master_source }}
+autoresync=true
+{% endif %}
+{% if mongodb_master %}
+master=true
+{% endif %}
+{% if mongodb_replSet %}
+replSet={{ mongodb_replSet }}
+{% endif %}

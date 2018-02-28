@@ -1,0 +1,31 @@
+---
+ - name: Get sphinx package from source
+   get_url:
+     url: "{{ sphinx_package_url }}/{{ sphinx_version }}-release.tar.gz"
+     dest: "{{ build_dir }}"
+
+ - block:
+    - debug:
+        msg: Build sphinx source code
+    - unarchive:
+        src: "{{ build_dir }}/{{ sphinx_version }}-release.tar.gz"
+        dest: "{{ build_dir }}"
+        remote_src: yes
+        creates: "{{ build_dir }}/{{ sphinx_version }}"
+    - make:
+        chdir: "{{ build_dir }}/{{ sphinx_version }}"
+        target: install
+        params:
+          NUM_THREADS: "{{ ansible_processor_count }}"
+          PREFIX: "{{ sphinx_install_dir }}"
+ 
+ - name: Copy service
+   template:
+     src: searchd.service.j2
+     dest: /etc/systemd/system/searchd.service
+
+ - name: Enable Sphinx
+   service:
+     name: searchd
+     enabled: yes
+...

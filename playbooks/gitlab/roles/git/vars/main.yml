@@ -1,0 +1,5 @@
+---
+git_version: "git-2.12.0"
+git_package_url: "https://www.kernel.org/pub/software/scm/git"
+git_install_dir: "/usr/local/gitlab/{{ git_version }}"
+git_link_dir: "/usr/local/gitlab/git"

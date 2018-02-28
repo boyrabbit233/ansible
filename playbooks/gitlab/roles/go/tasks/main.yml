@@ -1,0 +1,22 @@
+---
+ - name: Get go package from source
+   get_url:
+     url: "{{ go_package_url }}/{{ go_version }}.tar.xz"
+     dest: "{{ go_install_dir }}"
+
+ - name: unarchive go
+   unarchive:
+     src: "{{ go_install_dir }}/{{ go_version }}.tar.xz"
+     dest: "{{ go_install_dir }}"
+     remote_src: yes
+     creates: "{{ go_install_dir }}/go"
+
+ - name: Export PATH
+   blockinfile:
+     dest: "/root/.bash_profile"
+     block: "{{ item }}"
+   with_items:       
+     - "export PATH=$GOROOT/bin:$PATH" 
+     - "export GOROOT={{ go_install_dir }}/go"       
+     - "export GOPATH=/data0/go"       
+...

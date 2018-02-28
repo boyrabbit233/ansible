@@ -1,0 +1,46 @@
+---
+ - name: uninstall origin git
+   yum:
+     name: git
+     state: absent
+  
+ - name: install dependences
+   yum:
+     name: "{{ item }}"
+     state: present
+   with_items:
+     - openssl-devel
+     - libcurl-devel
+     - expat-devel
+
+ - name: Get git package from source
+   get_url:
+     url: "{{ git_package_url }}/{{ git_version }}.tar.xz"
+     dest: "{{ build_dir }}"
+
+ - block:
+    - debug:
+        msg: Build git source code
+    - unarchive:
+        src: "{{ build_dir }}/{{ git_version }}.tar.xz"
+        dest: "{{ build_dir }}"
+        remote_src: yes
+        creates: "{{ build_dir }}/{{ git_version }}"
+    - make:
+        chdir: "{{ build_dir }}/{{ git_version }}"
+        target: install
+        params:
+          NUM_THREADS: "{{ ansible_processor_count }}"
+          PREFIX: "{{ git_install_dir }}"
+    - file:
+        src: "{{ git_install_dir }}" 
+        path: "{{ git_link_dir }}"
+        state: link
+        force: yes
+
+ - name: Export PATH
+   lineinfile:
+     dest: "/root/.bash_profile"
+     line: "export PATH={{ git_link_dir }}/bin:$PATH"
+
+...

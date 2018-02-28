@@ -1,0 +1,29 @@
+---
+ - name: Add gitlab group
+   group:
+     name: gitlab
+     gid: 308
+     state: present
+     system: yes
+ 
+ - name: Add gitlab user
+   user:
+     name: gitlab
+     group: gitlab
+     uid: 308
+     createhome: /data0/gitlab
+     comment: GitLab 
+     shell: /sbin/nologin
+     state: present
+     system: yes
+
+ - name:
+    
+
+
+ - name: Clone Gitlab repository
+   git:
+     repo: "{{ gitlab_source_url }}"
+     dest: "{{ gitlab_install_dir }}"
+     version: "{{ gitlab_version }}"
+     clone: yes 

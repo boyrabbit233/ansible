@@ -1,0 +1,44 @@
+---
+ - name: uninstall origin ruby
+   yum:
+     name: ruby
+     state: absent
+  
+
+ - name: Get ruby package from source
+   get_url:
+     url: "{{ ruby_package_url }}/{{ ruby_version }}.tar.gz"
+     dest: "{{ build_dir }}"
+
+ - block:
+    - debug:
+        msg: Build ruby source code
+    - unarchive:
+        src: "{{ build_dir }}/{{ ruby_version }}.tar.gz"
+        dest: "{{ build_dir }}"
+        remote_src: yes
+        creates: "{{ build_dir }}/{{ ruby_version }}"
+#    - make:
+#        chdir: "{{ build_dir }}/{{ ruby_version }}"
+#        target: all
+#        params:
+#          NUM_THREADS: "{{ ansible_processor_count }}"
+#          PREFIX: "{{ ruby_install_dir }}"
+#          --disable-install-doc
+    - shell: cd "{{ build_dir }}/{{ ruby_version }}" && ./configure --disable-install-rdoc "--prefix={{ ruby_install_dir }}"
+    - shell: cd "{{ build_dir }}/{{ ruby_version }}" && make && make install  
+
+    - file:
+        src: "{{ ruby_install_dir }}" 
+        path: "{{ ruby_link_dir }}"
+        state: link
+        force: yes
+
+ - name: Export PATH
+   lineinfile:
+     dest: "/root/.bash_profile"
+     line: "export PATH={{ ruby_link_dir }}/bin:$PATH"
+
+ - name: Install bundler use gem
+   shell: "{{ ruby_link_dir }}/bin/gem install bundler --no-ri --no-rdoc creates={{ ruby_link_dir }}/bin/bundle"
+...

@@ -1,0 +1,5 @@
+---
+sphinx_version: "sphinx-2.2.11"
+sphinx_package_url: " http://sphinxsearch.com/files"
+sphinx_install_dir: "/usr/local/webserver/sphinx"
+build_dir: "/tmp"

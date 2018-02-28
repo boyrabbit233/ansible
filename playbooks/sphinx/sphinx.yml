@@ -1,0 +1,5 @@
+---
+ - hosts: sphinx
+   
+   roles:
+     - sphinx

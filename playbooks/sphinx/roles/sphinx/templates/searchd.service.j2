@@ -1,0 +1,19 @@
+[Unit]
+Description=SphinxSearch Search Engine
+After=network.target remote-fs.target nss-lookup.target
+After=syslog.target
+
+[Service]
+Type=forking
+ExecStart={{ sphinx_install_dir }}/bin/searchd --config {{ sphinx_install_dir }}/etc/sphinx.conf
+KillMode=process
+KillSignal=SIGTERM
+SendSIGKILL=no
+LimitNOFILE=infinity
+PIDFile=/var/run/sphinx/searchd.pid
+
+[Install]
+WantedBy=multi-user.target
+Alias=sphinx.service
+Alias=sphinxsearch.service
+

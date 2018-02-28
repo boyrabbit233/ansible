@@ -1,0 +1,4 @@
+---
+gitlab_source_url: "https://gitlab.com/gitlab-org/gitlab-ce.git"
+gitlab_install_dir: "/data0/git/gitlab"
+gitlab_version: "9-0-stable"

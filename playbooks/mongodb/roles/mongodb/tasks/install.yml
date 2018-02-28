@@ -1,0 +1,50 @@
+---
+- name: Check if mongodb local file is already configured.
+  stat: path={{ mongodb_file_path }}
+  register: mongodb_file_result
+  
+- name: Download mongodb file.
+  get_url: url={{ mongodb_file_url }} dest={{ software_files_path }}
+  when: not mongodb_file_result.stat.exists
+
+- name: Copy mongodb file to agent.
+  unarchive:
+    src: "{{ mongodb_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path}}/mongodb-linux-x86_64-rhel70-{{ mongodb_version }}"
+
+- name: Rename mongodb dir
+  shell: "mv mongodb-linux-x86_64-rhel70-{{ mongodb_version }}   mongodb-{{ mongodb_version }}"
+  args:
+    chdir: "{{ software_install_path }}"
+
+- name: Create mongodb dir soft link.
+  file: "src={{ software_install_path }}/mongodb-{{ mongodb_version }} dest={{ mongodb_link_path }} state=link"
+
+- name: Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ mongodb_link_path }}/bin/:$PATH'
+  run_once: yes
+
+- name: Create mongodb group.
+  group: name={{ mongodb_user }} state=present
+
+- name: Create mongodb user.
+  user: 
+    name: "{{ mongodb_user }}" 
+    group: "{{ mongodb_user }}"
+    shell: /sbin/nologin 
+    createhome: no
+    comment: MongoDB Server
+    state: present
+
+- name: Set transparent_hugepage to never.
+  command: "echo never > {{ item }}"
+  with_items:
+   - /sys/kernel/mm/redhat_transparent_hugepage/enabled
+   - /sys/kernel/mm/redhat_transparent_hugepage/defrag 
+  run_once: yes
+
+- lineinfile: dest=/etc/rc.local line={{ item }}
+  with_items:
+   - echo never >> /sys/kernel/mm/transparent_hugepage/enabled
+   - echo never >> /sys/kernel/mm/transparent_hugepage/defrag
